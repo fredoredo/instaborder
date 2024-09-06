@@ -9,7 +9,6 @@ def get_save_filename(path_: str, *additions) -> str:
     filename = f"{filename}_{"_".join(additions)}" + ext
     return filename
 
-
 AspectRatio = namedtuple("AspectRatio", ["width", "height"])
 
 
