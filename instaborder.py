@@ -28,30 +28,32 @@ parser.add_argument("-p", "--percentage", default=0.8, type=float,
 parser.add_argument("-ct", "--canvas-type", default="square", choices=["square", "landscape", "portrait"],
                     help="canvas (background) type supported by Instagram")
 parser.add_argument("-cc", "--canvas-color", default="#ffffff",
-                    help="hex code of canvas (background) color, example: '#ff0000' for red \
-                    '#' can be included or omitted")
+                    help="hex code of canvas (background) color, example: '#ff0000' for red, \
+                    note: do NOT include '#' before the hex code")
 parser.add_argument("-rq", "--resize-quality", type=int, default=2, choices=range(1,4),
-                    help="quality for resampling when fitting source image onto canvas \
-                    \n1 = lowest quality, fastest performance \
-                    \n2 = higher quality, slower performance \
-                    \n3 = highest quality, slowest performance")
+                    help="quality for resampling when fitting source image onto canvas. \
+                    1 = lowest quality, fastest performance. \
+                    2 = higher quality, slower performance. \
+                    3 = highest quality, slowest performance.")
 
 if __name__ == "__main__":
     args = parser.parse_args()
 
     # check valid source/destination
     if not (os.path.isdir(args.source) or os.path.isfile(args.source)):
-        msg = f"Specified source directory/file path is invalid. {args.source}"
+        msg = f"Specified source directory/file path is invalid: {args.source}"
         raise ValueError(msg)
     if not (os.path.isdir(args.dest)):
-        msg = f"Specified destination directory path is invalid. {args.dest}"
+        msg = f"Specified destination directory path is invalid: {args.dest}"
         raise ValueError(msg)
     
     # check valid canvas color
-    if args.canvas_color.lower().startswith("#") and (len(args.canvas_color) != 7):
-        msg = f"Specified canvas (background) color is invalid: {args.canvas_color}"
-        raise ValueError(msg)
-    elif args.canvas_color.startswith(tuple([str(i) for i in range(10)])) and (len(args.canvas_color) != 6):
+    valid_digits = [str(i) for i in range(10)] + ["a", "b", "c", "d", "e", "f"]
+    for digit in args.canvas_color:
+        if digit not in valid_digits:
+            msg = f"Specified canvas (background) color is invalid: {args.canvas_color}"
+            raise ValueError(msg)
+    if len(args.canvas_color) != 6:
         msg = f"Specified canvas (background) color is invalid: {args.canvas_color}"
         raise ValueError(msg)
     
@@ -69,7 +71,7 @@ if __name__ == "__main__":
     
     percentage = args.percentage
     canvas_type = ASPECT_RATIOS[args.canvas_type]
-    canvas_color = args.canvas_color
+    canvas_color = "#" + args.canvas_color
     resample = QUALITY[args.resize_quality]
 
     if os.path.isfile(src):  # single file
