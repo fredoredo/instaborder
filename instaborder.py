@@ -30,7 +30,7 @@ parser.add_argument("-ct", "--canvas-type", default="square", choices=["square",
 parser.add_argument("-cc", "--canvas-color", default="#ffffff",
                     help="hex code of canvas (background) color, example: '#ff0000' for red \
                     '#' can be included or omitted")
-parser.add_argument("-rq", "--resize-quality", default=2, choices=range(1,4),
+parser.add_argument("-rq", "--resize-quality", type=int, default=2, choices=range(1,4),
                     help="quality for resampling when fitting source image onto canvas \
                     \n1 = lowest quality, fastest performance \
                     \n2 = higher quality, slower performance \
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     if args.canvas_color.lower().startswith("#") and (len(args.canvas_color) != 7):
         msg = f"Specified canvas (background) color is invalid: {args.canvas_color}"
         raise ValueError(msg)
-    elif args.canvas_color.startswith([str(i) for i in range(10)]) and (len(args.canvas_color) != 6):
+    elif args.canvas_color.startswith(tuple([str(i) for i in range(10)])) and (len(args.canvas_color) != 6):
         msg = f"Specified canvas (background) color is invalid: {args.canvas_color}"
         raise ValueError(msg)
     
@@ -73,15 +73,20 @@ if __name__ == "__main__":
     resample = QUALITY[args.resize_quality]
 
     if os.path.isfile(src):  # single file
-        # filename = os.path.split(src)[-1]  # get file name + extension
-        # filename, ext = os.path.splitext(filename)  # split file name and extension
-        # filename = f"{filename}_{args.canvas_type}" + ext
         filename = get_save_filename(src, args.canvas_type)
         savedir = os.path.join(dst, filename)
         img = InstaImage(src, canvas_type, percentage, resample, canvas_color)
         img.process()
         img.save(savedir)
-    # elif os.path.isdir(src):
+    elif os.path.isdir(src):  # directory with files
+        for dir, sub_dir, files in os.walk(src):
+            for file in files:
+                img_path = os.path.join(dir, file)
+                filename = get_save_filename(img_path, args.canvas_type)
+                savedir = os.path.join(dst, filename)
+                img = InstaImage(img_path, canvas_type, percentage, resample, canvas_color)
+                img.process()
+                img.save(savedir)
     
 
 

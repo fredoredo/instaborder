@@ -6,7 +6,8 @@ from PIL import Image, ImageOps
 def get_save_filename(path_: str, *additions) -> str:
     filename = os.path.split(path_)[-1]  # get file name + extension
     filename, ext = os.path.splitext(filename)  # split file name and extension
-    filename = f"{filename}_{"_".join(additions)}" + ext
+    add = "_".join(additions)
+    filename = f"{filename}_{add}" + ext
     return filename
 
 AspectRatio = namedtuple("AspectRatio", ["width", "height"])
@@ -36,10 +37,10 @@ class InstaImage:
             (self.canvas_type.width, self.canvas_type.height),
             self.canvas_color
             )
-        
+        self._fit_to_canvas()
         self.bg.paste(
             self.img,
-            ((self.canvas_type.width - self.width) // 2, (self.canvas_type.height - self.height) // 2)
+            ((self.canvas_type.width - self.img.width) // 2, (self.canvas_type.height - self.img.height) // 2)
             )
         
     def save(self, save_dir):
@@ -59,4 +60,4 @@ class InstaImage:
             height = int(np.round(self.canvas_type.height * self.percent))
             width = int(np.round(height * img_ratio))
         
-        img = img.resize((width, height), self.resample)
+        self.img = self.img.resize((width, height), self.resample)
