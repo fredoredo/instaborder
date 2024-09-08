@@ -27,7 +27,7 @@ parser.add_argument("-p", "--percentage", default=0.8, type=float,
                     help="image length as percentage of canvas edge with tightest fit")
 parser.add_argument("-ct", "--canvas-type", default="square", choices=["square", "landscape", "portrait"],
                     help="canvas (background) type supported by Instagram")
-parser.add_argument("-cc", "--canvas-color", default="#ffffff",
+parser.add_argument("-cc", "--canvas-color", default="ffffff",
                     help="hex code of canvas (background) color, example: '#ff0000' for red, \
                     note: do NOT include '#' before the hex code")
 parser.add_argument("-rq", "--resize-quality", type=int, default=2, choices=range(1,4),
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     
     # check valid canvas color
     valid_digits = [str(i) for i in range(10)] + ["a", "b", "c", "d", "e", "f"]
-    for digit in args.canvas_color:
+    for digit in args.canvas_color.lower():
         if digit not in valid_digits:
             msg = f"Specified canvas (background) color is invalid: {args.canvas_color}"
             raise ValueError(msg)
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     
     percentage = args.percentage
     canvas_type = ASPECT_RATIOS[args.canvas_type]
-    canvas_color = "#" + args.canvas_color
+    canvas_color = "#" + args.canvas_color.lower()
     resample = QUALITY[args.resize_quality]
 
     if os.path.isfile(src):  # single file
@@ -83,6 +83,11 @@ if __name__ == "__main__":
     elif os.path.isdir(src):  # directory with files
         for dir, sub_dir, files in os.walk(src):
             for file in files:
+                ext = os.path.splitext(file)[-1]
+                if ext not in [".jpg", ".jpeg", ".png", ".tiff", ".gif"]:
+                    print(f"skipping {file}: {ext} not supported")
+                    continue
+                print(f"processing {file}")
                 img_path = os.path.join(dir, file)
                 filename = get_save_filename(img_path, args.canvas_type)
                 savedir = os.path.join(dst, filename)
