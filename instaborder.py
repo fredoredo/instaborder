@@ -23,7 +23,7 @@ parser.add_argument("source", metavar="SOURCE",
                     \nspecify relative or absolute paths")
 parser.add_argument("dest", metavar="DEST",
                     help="destination directory \nspecify relative or absolute paths")
-parser.add_argument("-p", "--percentage", default=0.8, type=float,
+parser.add_argument("-p", "--percentage", default=0.9, type=float,
                     help="image length as percentage of canvas edge with tightest fit")
 parser.add_argument("-ct", "--canvas-type", default="square", choices=["square", "landscape", "portrait"],
                     help="canvas (background) type supported by Instagram")
